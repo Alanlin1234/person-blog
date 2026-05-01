@@ -1,0 +1,250 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum PostStatus {
+  draft
+  published
+  archived
+}
+
+enum CommentStatus {
+  pending
+  approved
+  rejected
+}
+
+model Role {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  users UserRole[]
+}
+
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String    @map("password_hash")
+  emailVerifiedAt  DateTime? @map("email_verified_at")
+  displayName      String?   @map("display_name")
+  avatarUrl        String?   @map("avatar_url")
+  bio              String?
+  contacts         Json?
+  social           Json?
+  themePreference  String    @default("light") @map("theme_preference")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  roles            UserRole[]
+  posts            Post[]
+  comments         Comment[]
+  refreshTokens    RefreshToken[]
+  notifications    Notification[]
+  searchHistory    SearchHistory[]
+  commentLikes     CommentLike[]
+  commentReports   CommentReport[]
+
+  @@map("users")
+}
+
+model UserRole {
+  userId String @map("user_id")
+  roleId String @map("role_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique @map("token_hash")
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+
+  @@map("email_verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+
+  @@map("password_reset_tokens")
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  parentId  String?    @map("parent_id")
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Category[] @relation("CategoryTree")
+  sortOrder Int        @default(0) @map("sort_order")
+  posts     PostCategory[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id    String    @id @default(cuid())
+  name  String    @unique
+  slug  String    @unique
+  posts PostTag[]
+
+  @@map("tags")
+}
+
+model Post {
+  id           String      @id @default(cuid())
+  title        String
+  slug         String      @unique
+  htmlContent  String      @map("html_content")
+  excerpt      String?
+  status       PostStatus  @default(draft)
+  pinned       Boolean     @default(false)
+  hidden       Boolean     @default(false)
+  viewCount    Int         @default(0) @map("view_count")
+  publishedAt  DateTime?   @map("published_at")
+  deletedAt    DateTime?   @map("deleted_at")
+  authorId     String      @map("author_id")
+  author       User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  versions     PostVersion[]
+  categories   PostCategory[]
+  tags         PostTag[]
+  comments     Comment[]
+
+  @@index([status, publishedAt])
+  @@index([viewCount])
+  @@map("posts")
+}
+
+model PostVersion {
+  id           String   @id @default(cuid())
+  postId       String   @map("post_id")
+  post         Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  versionNo    Int      @map("version_no")
+  snapshotHtml String   @map("snapshot_html")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([postId])
+  @@map("post_versions")
+}
+
+model PostCategory {
+  postId     String   @map("post_id")
+  categoryId String   @map("category_id")
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+  @@map("post_categories")
+}
+
+model PostTag {
+  postId String @map("post_id")
+  tagId  String @map("tag_id")
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@map("post_tags")
+}
+
+model Comment {
+  id        String         @id @default(cuid())
+  postId    String         @map("post_id")
+  post      Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String         @map("user_id")
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId  String?        @map("parent_id")
+  parent    Comment?       @relation("CommentThread", fields: [parentId], references: [id], onDelete: SetNull)
+  replies   Comment[]      @relation("CommentThread")
+  body      String
+  status    CommentStatus  @default(pending)
+  likeCount Int            @default(0) @map("like_count")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  likes     CommentLike[]
+  reports   CommentReport[]
+
+  @@index([postId, status, createdAt])
+  @@map("comments")
+}
+
+model CommentLike {
+  commentId String  @map("comment_id")
+  userId    String  @map("user_id")
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+  @@map("comment_likes")
+}
+
+model CommentReport {
+  id         String  @id @default(cuid())
+  commentId  String  @map("comment_id")
+  comment    Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  reporterId String  @map("reporter_id")
+  reporter   User    @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reason     String?
+  status     String  @default("open")
+
+  @@map("comment_reports")
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  recipientId String    @map("recipient_id")
+  recipient   User      @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  type        String
+  payload     Json
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([recipientId, readAt])
+  @@map("notifications")
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  query     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@map("search_history")
+}
+
+model PostViewDedup {
+  id         String   @id @default(cuid())
+  postId     String   @map("post_id")
+  viewerHash String   @map("viewer_hash")
+  expiresAt  DateTime @map("expires_at")
+
+  @@unique([postId, viewerHash], name: "post_view_dedup_uniq")
+  @@map("post_view_dedup")
+}

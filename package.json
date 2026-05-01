@@ -1,0 +1,19 @@
+{
+  "name": "person-blog",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run start:dev -w @person-blog/api",
+    "dev:web": "npm run dev -w @person-blog/web",
+    "build": "npm run build -w @person-blog/api && npm run build -w @person-blog/web",
+    "db:generate": "npm run prisma:generate -w @person-blog/api",
+    "db:migrate": "npm run prisma:migrate -w @person-blog/api",
+    "db:push": "npm run prisma:push -w @person-blog/api",
+    "db:seed": "npm run prisma:seed -w @person-blog/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

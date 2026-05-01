@@ -1,0 +1,5 @@
+name: person-blog
+channels:
+  - defaults
+dependencies:
+  - nodejs=20

@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --brand: #1890ff;
+  --brand-hover: #1677d9;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+[data-theme='sepia'] {
+  color-scheme: light;
+}
+
+body {
+  @apply min-h-screen bg-white text-zinc-900 antialiased;
+}
+[data-theme='dark'] body {
+  @apply bg-zinc-950 text-zinc-50;
+}
+[data-theme='sepia'] body {
+  @apply bg-amber-50 text-amber-950;
+}
+
+/* Article body: headings, lists, code (design reference) */
+.article-body {
+  @apply text-zinc-800 leading-relaxed;
+}
+[data-theme='dark'] .article-body {
+  @apply text-zinc-200;
+}
+.article-body h1,
+.article-body h2,
+.article-body h3 {
+  @apply font-semibold text-zinc-900 mt-8 mb-3;
+}
+[data-theme='dark'] .article-body h1,
+[data-theme='dark'] .article-body h2,
+[data-theme='dark'] .article-body h3 {
+  @apply text-zinc-50;
+}
+.article-body p {
+  @apply my-4;
+}
+.article-body ul {
+  @apply my-4 list-disc pl-6;
+}
+.article-body ol {
+  @apply my-4 list-decimal pl-6;
+}
+.article-body pre {
+  @apply my-6 overflow-x-auto rounded-lg bg-zinc-900 p-4 text-sm text-zinc-100 shadow-inner;
+}
+.article-body code {
+  @apply rounded bg-zinc-100 px-1.5 py-0.5 text-sm text-zinc-800;
+}
+[data-theme='dark'] .article-body code {
+  @apply bg-zinc-800 text-zinc-100;
+}
+.article-body pre code {
+  @apply bg-transparent p-0 text-zinc-100;
+}
+.article-body a {
+  @apply text-brand underline-offset-2 hover:underline;
+}
+.article-body blockquote {
+  @apply my-4 border-l-4 border-brand/40 pl-4 text-zinc-600 italic;
+}
