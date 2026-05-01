@@ -66,6 +66,7 @@ For local dev, Vite proxies `/api` and `/uploads` to `VITE_API_PROXY` (default `
 - [ ] Scheduled DB backups + off-site copy of `BACKUP_DIR`.
 - [ ] Object storage (S3/OSS) instead of local disk for avatars if multi-instance.
 
-## 5. Legacy EdgeOne Pages
+## 5. Optional: EdgeOne Pages (static SPA only)
 
-The old **static-only** `edgeone.json` workflow is **not** used by this stack. Prefer VM/Kubernetes/Platform-as-a-service that can run Node + MySQL + Redis.
+`edgeone.json` can publish **only** the Vite bundle to Tencent EdgeOne Pages; see [DEPLOY.md](../DEPLOY.md). The API still needs a normal Node host. For the full stack, prefer VM/Kubernetes/PaaS that can run Node + MySQL + Redis.
+
