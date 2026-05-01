@@ -1,7 +1,7 @@
 {
   "name": "person-blog",
-  "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "outputDirectory": "./dist",
+  "buildCommand": "npm run build:pages",
+  "outputDirectory": "./apps/web/dist",
   "nodeVersion": "20.18.0"
 }

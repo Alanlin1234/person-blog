@@ -5,6 +5,12 @@ This repository’s **primary** deployment target is the **full-stack** applicat
 - [docs/deployment.md](docs/deployment.md) — environment variables, Docker Compose, production checklist  
 - [README.md](README.md) — quick start and scripts  
 
-## Historical note — EdgeOne Pages (static)
+## EdgeOne Pages (static frontend only)
 
-The root `edgeone.json` file described a **static** build (`npm run build` → `dist/`) for Tencent EdgeOne Pages. That path is **legacy** relative to the dynamic blog in `apps/api` and `apps/web`. You may remove or repurpose `edgeone.json` once you no longer publish a static site from this repo.
+Root `edgeone.json` is configured for **Tencent EdgeOne Pages** static hosting:
+
+- **Build:** `npm run build:pages` — builds only `@person-blog/web` (Vite → `apps/web/dist`). The full monorepo `npm run build` also compiles the API and is not required here.
+- **Output:** `./apps/web/dist` — must match Vite’s `outDir` so Pages does not show `404 NOT_FOUND` with an empty artifact.
+
+The NestJS API is **not** deployed by this file. Point the production SPA at your API origin (e.g. `VITE_API_BASE` / env in the console) so login, posts, and search work.
+
