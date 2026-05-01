@@ -98,7 +98,7 @@ export class AuthService {
     const ok = await argon2.verify(user.passwordHash, dto.password);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
-    const roles = user.roles.map((r) => r.role.name);
+    const roles = user.roles.map((r: { role: { name: string } }) => r.role.name);
     const accessToken = await this.jwt.signAsync(
       { sub: user.id, email: user.email, roles },
       { secret: this.accessSecret(), expiresIn: this.accessExpires() },
@@ -150,7 +150,7 @@ export class AuthService {
 
     await this.prisma.refreshToken.delete({ where: { id: row.id } });
 
-    const roles = row.user.roles.map((r) => r.role.name);
+    const roles = row.user.roles.map((r: { role: { name: string } }) => r.role.name);
     const accessToken = await this.jwt.signAsync(
       { sub: row.user.id, email: row.user.email, roles },
       { secret: this.accessSecret(), expiresIn: this.accessExpires() },

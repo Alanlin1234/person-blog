@@ -23,7 +23,7 @@ export class UsersService {
       social: user.social,
       themePreference: user.themePreference,
       emailVerified: !!user.emailVerifiedAt,
-      roles: user.roles.map((r) => r.role.name),
+      roles: user.roles.map((r: { role: { name: string } }) => r.role.name),
     };
   }
 

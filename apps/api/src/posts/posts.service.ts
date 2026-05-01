@@ -54,7 +54,7 @@ export class PostsService {
     });
     if (old.length) {
       await this.prisma.postVersion.deleteMany({
-        where: { id: { in: old.map((o) => o.id) } },
+        where: { id: { in: old.map((o: { id: string }) => o.id) } },
       });
     }
   }

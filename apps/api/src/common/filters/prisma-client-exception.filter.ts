@@ -1,6 +1,10 @@
 import { ArgumentsHost, Catch, HttpStatus, Logger } from '@nestjs/common';
 import { BaseExceptionFilter, HttpAdapterHost } from '@nestjs/core';
-import { Prisma } from '@prisma/client';
+import {
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+} from '@prisma/client/runtime/library';
 import { Response } from 'express';
 
 /** Table/column missing — schema not applied (`prisma db push` / migrate). */
@@ -20,14 +24,14 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost): void {
     if (
-      exception instanceof Prisma.PrismaClientInitializationError ||
-      exception instanceof Prisma.PrismaClientUnknownRequestError
+      exception instanceof PrismaClientInitializationError ||
+      exception instanceof PrismaClientUnknownRequestError
     ) {
       this.replyDbUnavailable(host, exception);
       return;
     }
     if (
-      exception instanceof Prisma.PrismaClientKnownRequestError &&
+      exception instanceof PrismaClientKnownRequestError &&
       SCHEMA_DRIFT_CODES.has(exception.code)
     ) {
       this.replyDbUnavailable(host, exception);
@@ -39,16 +43,16 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
   private replyDbUnavailable(
     host: ArgumentsHost,
     exception:
-      | Prisma.PrismaClientInitializationError
-      | Prisma.PrismaClientUnknownRequestError
-      | Prisma.PrismaClientKnownRequestError,
+      | PrismaClientInitializationError
+      | PrismaClientUnknownRequestError
+      | PrismaClientKnownRequestError,
   ): void {
     this.logger.error(exception.message);
     const res = host.switchToHttp().getResponse<Response>();
     const errorCode =
-      exception instanceof Prisma.PrismaClientInitializationError
+      exception instanceof PrismaClientInitializationError
         ? exception.errorCode
-        : exception instanceof Prisma.PrismaClientKnownRequestError
+        : exception instanceof PrismaClientKnownRequestError
           ? exception.code
           : null;
 

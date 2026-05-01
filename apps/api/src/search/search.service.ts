@@ -57,7 +57,7 @@ export class SearchService {
       this.prisma.post.count({ where }),
     ]);
 
-    const items = rows.map((r) => {
+    const items = rows.map((r: (typeof rows)[number]) => {
       const snippetSource = r.excerpt || r.htmlContent.replace(/<[^>]+>/g, '').slice(0, 240);
       return {
         id: r.id,
