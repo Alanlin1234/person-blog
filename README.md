@@ -34,13 +34,14 @@ npm run dev:api
 | `npm run dev:api` | Nest watch mode |
 | `npm run dev:web` | Vite dev server (proxies `/api` and `/uploads`) |
 | `npm run build` | Build API + web |
+| `npm run build:pages` | Build web only (for static hosts such as EdgeOne Pages) |
 | `npm run db:push` | Prisma `db push` (dev schema sync) |
 | `npm run db:migrate` | Prisma migrations (when configured) |
 | `npm run db:seed` | Seed roles + admin user |
 
-## Legacy static site
+## Static frontend (EdgeOne Pages)
 
-The earlier **EdgeOne static** flow (`edgeone.json`, old `DEPLOY.md` static-only) is superseded by this stack. Static assets for uploads are served from `UPLOAD_DIR` (default `./uploads`) at `/uploads`.
+Optional: root `edgeone.json` deploys **only** the Vite app (`apps/web/dist`). API and database still need a separate host; see [DEPLOY.md](DEPLOY.md).
 
 ## Documentation
 
